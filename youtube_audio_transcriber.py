@@ -1,7 +1,7 @@
 import os
 import threading
 from concurrent.futures.thread import ThreadPoolExecutor
-
+import json
 import whisper
 
 
@@ -57,11 +57,18 @@ def transcribe_and_output_text_thread(audio_file_folder, audio_file, transcripti
     my_thread.start()
 
 
+def read_settings_file():
+    with open("settings.json", "r") as f:
+        settings_json = json.load(f)
+    return settings_json
+
 def main():
     """Docstring here"""
 
-    audio_file_folder = 'C:\\Users\\gold1\\pycharm-projects\\youtube-audio-transcriber-working-directory\\input_audio'
-    transcription_output_folder = 'C:\\Users\\gold1\\pycharm-projects\\youtube-audio-transcriber-working-directory\\output_transcriptions'
+    settings_json = read_settings_file()
+
+    audio_file_folder = settings_json['input_audio']
+    transcription_output_folder = settings_json['output_transcriptions']
 
     # Set a limit on the number of threads you want to run concurrently
     max_threads = 3  # You can adjust this number based on your RAM constraints
