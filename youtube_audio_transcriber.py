@@ -71,7 +71,7 @@ def main():
     transcription_output_folder = settings_json['output_transcriptions']
 
     # Set a limit on the number of threads you want to run concurrently
-    max_threads = 3  # You can adjust this number based on your RAM constraints
+    max_threads = settings_json['max_threads']  # You can adjust this number based on your RAM constraints
 
     # Use ThreadPoolExecutor to manage threads
     with ThreadPoolExecutor(max_workers=max_threads) as executor:
