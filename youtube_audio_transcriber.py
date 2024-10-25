@@ -30,7 +30,7 @@ def paragraphize_text(input_string):
 
 def transcribe_audio(input_audio_file: str):
 
-    print(f'Running audio conversion for {input_audio_file}')
+    print(f'Running audio conversion for {os.path.basename(input_audio_file)}')
 
     model = whisper.load_model('base')
 
@@ -61,6 +61,7 @@ def read_settings_file():
     with open("settings.json", "r") as f:
         settings_json = json.load(f)
     return settings_json
+
 
 def main():
     """Docstring here"""
