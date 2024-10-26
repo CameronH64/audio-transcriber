@@ -4,6 +4,7 @@ import time
 import json
 import whisper
 from pathlib import Path
+import csv
 
 
 def create_transcription_file(transcribed_text, filename, transcription_output_folder):
@@ -74,27 +75,33 @@ def main():
     transcription_output_folder = settings_json['output_transcriptions']
     log_file = settings_json['log_file']
 
-    # Cycle through the folder of audio files
-    for audio_file in os.listdir(audio_file_folder):
+    with open(log_file, "a", newline="") as file:
 
-        start_time = time.time()  # Start timing
+        writer = csv.writer(file)
+        writer.writerow(["elapsed_time", "audio_file"])
 
-        transcribe_and_output_text(audio_file_folder, audio_file, transcription_output_folder)
+        # Cycle through the folder of audio files
+        for audio_file in os.listdir(audio_file_folder):
 
-        end_time = time.time()  # End timing
-        elapsed_time = end_time - start_time  # Calculate elapsed time
+            start_time = time.time()  # Start timing
 
-        # Convert seconds to mm:ss format
-        minutes = int(elapsed_time // 60)
-        seconds = int(elapsed_time % 60)
+            transcribe_and_output_text(audio_file_folder, audio_file, transcription_output_folder)
 
-        processing_message = f"Time for processing '{audio_file}': {minutes:02}:{seconds:02}"
+            end_time = time.time()  # End timing
+            elapsed_time = end_time - start_time  # Calculate elapsed time
 
-        print(processing_message)
-        print()
+            # Convert seconds to mm:ss format
+            minutes = int(elapsed_time // 60)
+            seconds = int(elapsed_time % 60)
 
-        with open(log_file, "a") as file:
-            file.write(processing_message + "\n")
+            processing_message = f"Time for processing '{audio_file}': {minutes:02}:{seconds:02}"
+            processing_message_list = [f"{minutes:02}:{seconds:02}", f"{audio_file}"]
+
+            print(processing_message + "\n")
+
+            writer.writerow(processing_message_list)
+
+
 
 
 if __name__ == '__main__':

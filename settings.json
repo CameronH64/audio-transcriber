@@ -1,6 +1,6 @@
 {
     "input_audio": "C:\\Users\\gold1\\pycharm-projects\\youtube-audio-transcriber-working-directory\\input_audio",
     "output_transcriptions": "C:\\Users\\gold1\\pycharm-projects\\youtube-audio-transcriber-working-directory\\output_transcriptions",
-    "log_file": "C:\\Users\\gold1\\pycharm-projects\\youtube-audio-transcriber-working-directory\\output_transcriptions\\log_file.txt",
+    "log_file": "C:\\Users\\gold1\\pycharm-projects\\youtube-audio-transcriber-working-directory\\output_transcriptions\\transcription_log_file.csv",
     "max_threads": 2
 }
