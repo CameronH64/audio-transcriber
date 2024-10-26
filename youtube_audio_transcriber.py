@@ -69,10 +69,16 @@ def main():
     transcription_output_folder = settings_json['output_transcriptions']
     log_file = settings_json['log_file']
 
+    # Check if the log file exists and is not empty so that the headers aren't written again.
+    file_exists = os.path.isfile(log_file) and os.path.getsize(log_file) > 0
+
     with open(log_file, "a", newline="") as file:
 
         writer = csv.writer(file)
-        writer.writerow(["elapsed_time", "audio_file"])
+
+        # Write headers only if the file does not exist or is empty
+        if not file_exists:
+            writer.writerow(["elapsed_time", "audio_file"])
 
         # Cycle through the folder of audio files
         for audio_file in os.listdir(audio_file_folder):
