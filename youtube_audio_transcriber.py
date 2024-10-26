@@ -53,12 +53,6 @@ def transcribe_and_output_text(audio_file_folder, audio_file, transcription_outp
     create_transcription_file(transcribed_text, audio_file, transcription_output_folder)
 
 
-def transcribe_and_output_text_thread(audio_file_folder, audio_file, transcription_output_folder):
-
-    my_thread = threading.Thread(target=transcribe_and_output_text, args=(audio_file_folder, audio_file, transcription_output_folder))
-    my_thread.start()
-
-
 def read_settings_file():
 
     with open("settings.json", "r") as f:
@@ -100,8 +94,6 @@ def main():
             print(processing_message + "\n")
 
             writer.writerow(processing_message_list)
-
-
 
 
 if __name__ == '__main__':
