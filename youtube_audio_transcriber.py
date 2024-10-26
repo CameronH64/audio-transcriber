@@ -1,17 +1,21 @@
 import os
 import threading
-from concurrent.futures.thread import ThreadPoolExecutor
+import time
 import json
 import whisper
+from pathlib import Path
 
 
-def create_file(transcribed_text, filename, transcription_output_folder):
+def create_transcription_file(transcribed_text, filename, transcription_output_folder):
 
-    with open(f'{transcription_output_folder}\\{filename}_transcribed.txt', 'w') as file:
+    name_without_extension = Path(filename).stem        # Remove the extension (.m4a)
+
+    with open(f'{transcription_output_folder}\\{name_without_extension}.txt', 'w', encoding="utf-8") as file:
         file.write(transcribed_text)
 
 
 def paragraphize_text(input_string):
+
     # Convert the input string to a list of characters for easier manipulation
     chars = list(input_string)
     space_count = 0
@@ -30,14 +34,11 @@ def paragraphize_text(input_string):
 
 def transcribe_audio(input_audio_file: str):
 
-    print(f'Running audio conversion for {os.path.basename(input_audio_file)}')
+    print(f'Running audio conversion for: {os.path.basename(input_audio_file)}')
 
     model = whisper.load_model('base')
-
     result = model.transcribe(input_audio_file, fp16=False)
     transcribed_text = result['text']
-
-    print(transcribed_text)
 
     final_text = paragraphize_text(transcribed_text)
 
@@ -45,10 +46,10 @@ def transcribe_audio(input_audio_file: str):
 
 
 def transcribe_and_output_text(audio_file_folder, audio_file, transcription_output_folder):
+
     transcribed_text = transcribe_audio(os.path.join(audio_file_folder, audio_file))
     # After doing the transcription, make the .txt file with the text transcription.
-    create_file(transcribed_text, audio_file, transcription_output_folder)
-    print()
+    create_transcription_file(transcribed_text, audio_file, transcription_output_folder)
 
 
 def transcribe_and_output_text_thread(audio_file_folder, audio_file, transcription_output_folder):
@@ -58,37 +59,42 @@ def transcribe_and_output_text_thread(audio_file_folder, audio_file, transcripti
 
 
 def read_settings_file():
+
     with open("settings.json", "r") as f:
         settings_json = json.load(f)
+
     return settings_json
 
 
 def main():
-    """Docstring here"""
 
     settings_json = read_settings_file()
 
     audio_file_folder = settings_json['input_audio']
     transcription_output_folder = settings_json['output_transcriptions']
+    log_file = settings_json['log_file']
 
-    # Set a limit on the number of threads you want to run concurrently
-    max_threads = settings_json['max_threads']  # You can adjust this number based on your RAM constraints
+    # Cycle through the folder of audio files
+    for audio_file in os.listdir(audio_file_folder):
 
-    # Use ThreadPoolExecutor to manage threads
-    with ThreadPoolExecutor(max_workers=max_threads) as executor:
-        futures = []
+        start_time = time.time()  # Start timing
 
-        # Cycle through the folder of audio files
-        for audio_file in os.listdir(audio_file_folder):
-            # Submit each transcription task to the thread pool
-            future = executor.submit(transcribe_and_output_text_thread, audio_file_folder, audio_file,
-                                     transcription_output_folder)
-            futures.append(future)
-            # Optionally, wait for all threads to complete
-            # for future in as_completed(futures):
-            #     result = future.result()  # This will block until the individual task is done
-            #     print(result)
+        transcribe_and_output_text(audio_file_folder, audio_file, transcription_output_folder)
 
+        end_time = time.time()  # End timing
+        elapsed_time = end_time - start_time  # Calculate elapsed time
+
+        # Convert seconds to mm:ss format
+        minutes = int(elapsed_time // 60)
+        seconds = int(elapsed_time % 60)
+
+        processing_message = f"Time for processing '{audio_file}': {minutes:02}:{seconds:02}"
+
+        print(processing_message)
+        print()
+
+        with open(log_file, "a") as file:
+            file.write(processing_message + "\n")
 
 
 if __name__ == '__main__':
