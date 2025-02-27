@@ -3,6 +3,7 @@ import threading
 import time
 import json
 import whisper
+import torch
 from pathlib import Path
 import csv
 
@@ -33,11 +34,11 @@ def paragraphize_text(input_string):
     return result_string
 
 
-def transcribe_audio(input_audio_file: str):
+def transcribe_audio(input_audio_file: str, cuda_device):
 
     print(f'Running audio conversion for: {os.path.basename(input_audio_file)}')
 
-    model = whisper.load_model('base')
+    model = whisper.load_model('base', device=cuda_device)
     result = model.transcribe(input_audio_file, fp16=False)
     transcribed_text = result['text']
 
@@ -46,9 +47,9 @@ def transcribe_audio(input_audio_file: str):
     return final_text
 
 
-def transcribe_and_output_text(audio_file_folder, audio_file, transcription_output_folder):
+def transcribe_and_output_text(audio_file_folder, audio_file, cuda_device, transcription_output_folder):
 
-    transcribed_text = transcribe_audio(os.path.join(audio_file_folder, audio_file))
+    transcribed_text = transcribe_audio(os.path.join(audio_file_folder, audio_file), cuda_device)
     # After doing the transcription, make the .txt file with the text transcription.
     create_transcription_file(transcribed_text, audio_file, transcription_output_folder)
 
@@ -62,6 +63,9 @@ def read_settings_file():
 
 
 def main():
+
+    # Check if CUDA is available
+    cuda_device = "cuda" if torch.cuda.is_available() else "cpu"
 
     settings_json = read_settings_file()
 
@@ -85,7 +89,7 @@ def main():
 
             start_time = time.time()  # Start timing
 
-            transcribe_and_output_text(audio_file_folder, audio_file, transcription_output_folder)
+            transcribe_and_output_text(audio_file_folder, audio_file, cuda_device, transcription_output_folder)
 
             end_time = time.time()  # End timing
             elapsed_time = end_time - start_time  # Calculate elapsed time
