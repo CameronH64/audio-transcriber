@@ -38,8 +38,8 @@ def transcribe_audio(input_audio_file: str, cuda_device):
 
     print(f'Running audio conversion for: {os.path.basename(input_audio_file)}')
 
-    model = whisper.load_model('base', device=cuda_device)
-    result = model.transcribe(input_audio_file, fp16=False)
+    model = whisper.load_model("base", device=cuda_device)
+    result = model.transcribe(input_audio_file)
     transcribed_text = result['text']
 
     final_text = paragraphize_text(transcribed_text)
